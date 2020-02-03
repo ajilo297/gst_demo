@@ -28,7 +28,6 @@ class _PurchaseMobile extends StatelessWidget {
               textCapitalization: TextCapitalization.words,
               validator: (value) {
                 if (value.isEmpty) return 'Name is required';
-                if (value.length < 2) return 'Enter at least 2 characters';
                 return null;
               },
               onSaved: (value) => viewModel.name = value,

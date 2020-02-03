@@ -38,20 +38,30 @@ class HiveService extends BaseService {
     }).toList();
   }
 
-  Future<List<PurchaseModel>> getPurchases() async {
+  Future<List<PurchaseModel>> getPurchases({DateTime dateTime}) async {
     Box<PurchaseModel> box = await Hive.openBox<PurchaseModel>('purchase');
     List<PurchaseModel> models = box.keys.map((k) {
       return box.get(k);
     }).toList();
-    return models;
+    if (dateTime == null) return models;
+    return models
+        .where((element) =>
+            element.dateTime.year == dateTime.year &&
+            element.dateTime.month == dateTime.month)
+        .toList();
   }
 
-  Future<List<SalesModel>> getSales() async {
+  Future<List<SalesModel>> getSales({DateTime dateTime}) async {
     Box<SalesModel> box = await Hive.openBox<SalesModel>('sales');
     List<SalesModel> models = box.keys.map((k) {
       return box.get(k);
     }).toList();
-    return models;
+    if (dateTime == null) return models;
+    return models
+        .where((element) =>
+            element.dateTime.year == dateTime.year &&
+            element.dateTime.month == dateTime.month)
+        .toList();
   }
 
   Future savePurchase(PurchaseModel model) async {
@@ -65,7 +75,8 @@ class HiveService extends BaseService {
   }
 
   Future clearData() async {
-    Box<PurchaseModel> purchaseBox = await Hive.openBox<PurchaseModel>('purchase');
+    Box<PurchaseModel> purchaseBox =
+        await Hive.openBox<PurchaseModel>('purchase');
     Box<SalesModel> saleBox = await Hive.openBox<SalesModel>('sales');
     purchaseBox.clear();
     saleBox.clear();

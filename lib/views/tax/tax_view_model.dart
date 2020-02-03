@@ -7,12 +7,20 @@ import 'package:gst_demo/core/services/hive_service.dart';
 
 class TaxViewModel extends BaseViewModel {
   final HiveService _hiveService;
+  DateTime _selectedDate = DateTime.now();
 
   List<TaxModel> _data;
 
   TaxViewModel({
     @required HiveService hiveService,
   }) : this._hiveService = hiveService;
+
+  DateTime get selectedDate => this._selectedDate;
+  set selectedDate(DateTime dateTime) {
+    this._selectedDate = dateTime;
+    notifyListeners();
+    getData();
+  }
 
   List<TaxModel> get data => this._data ?? [];
   set data(List<TaxModel> model) {
@@ -64,8 +72,10 @@ class TaxViewModel extends BaseViewModel {
 
   void getData() async {
     log.i('getData');
-    List<PurchaseModel> purchases = await _hiveService.getPurchases();
-    List<SalesModel> sales = await _hiveService.getSales();
+    List<PurchaseModel> purchases =
+        await _hiveService.getPurchases(dateTime: selectedDate);
+    List<SalesModel> sales =
+        await _hiveService.getSales(dateTime: selectedDate);
 
     List<TaxModel> taxModels = [];
     purchases.forEach((model) {
@@ -98,5 +108,68 @@ class TaxViewModel extends BaseViewModel {
 
     taxModels.sort((t1, t2) => t1.dateTime.compareTo(t2.dateTime));
     this.data = taxModels;
+  }
+
+  void onYearChanged(int year) {
+    log.i('onYearChanged: year: $year');
+    DateTime dateTime = DateTime(year, selectedDate.month);
+    selectedDate = dateTime;
+  }
+
+  void onMonthChanged(int month) {
+    log.i('onMonthChanged: month: $month');
+    DateTime dateTime = DateTime(selectedDate.year, month);
+    selectedDate = dateTime;
+  }
+
+  String getMonthString(int month) {
+    switch (month) {
+      case 1:
+        return 'January';
+      case 2:
+        return 'February';
+      case 3:
+        return 'March';
+      case 4:
+        return 'April';
+      case 5:
+        return 'May';
+      case 6:
+        return 'June';
+      case 7:
+        return 'July';
+      case 8:
+        return 'August';
+      case 9:
+        return 'September';
+      case 10:
+        return 'October';
+      case 11:
+        return 'November';
+      case 12:
+        return 'December';
+      default:
+        return 'Janurary';
+    }
+  }
+
+  List<int> get validYears {
+    List<int> years = [];
+
+    for (int i = 2000; i <= DateTime.now().year; i += 1) {
+      years.add(i);
+    }
+
+    return years;
+  }
+
+  List<int> get validMonths {
+    List<int> months = [];
+
+    for (int i = 1; i <= 12; i += 1) {
+      months.add(i);
+    }
+
+    return months;
   }
 }
